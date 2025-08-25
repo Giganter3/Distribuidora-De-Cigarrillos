@@ -1,0 +1,17 @@
+{
+  "name": "admin-web-project",
+  "version": "1.0.0",
+  "description": "A web project with admin access feature.",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "axios": "^0.21.1",
+    "jquery": "^3.6.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
