@@ -1,29 +1,65 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distribuidora De Cigarrillos</title>
-<link rel="stylesheet" href="site-fixes.css"></head>
-<h6>Ingrese su Usuario</h6>
-<h6>Ingrese su contraseña</h6>
-
-
+    <title>Inicio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
-    <form action="guardar_login.php" method="POST">
-        <h6>Ingrese su Usuario</h6>
-        <input type="text" name="usuario" placeholder="Usuario" required>
-        <h6>Ingrese su contraseña</h6>
-        <input type="password" name="contrasena" placeholder="Contraseña" required>
-        <button type="submit">Ingresar</button>
-    </form>
-    <a href="Inicio.html">Inicio</a>
-    <a href="Ventas.html">Ventas</a>
-    <a href="Clientes.html">Clientes</a>
-    <a href="Productos.html">Productos</a>
-    <a href="Proveedores.html">Proveedores</a>
-
+    <div class="container">
+        <h1>Bienvenido</h1>
+        <div id="main-menu">
+            <button onclick="showSection('user')">Usuario</button>
+            <button onclick="showSection('admin')">Admin</button>
+        </div>
+        <div id="user-section" class="hidden">
+            <h2>Usuario</h2>
+            <button onclick="showForm('user-login')">Login</button>
+            <button onclick="showForm('user-register')">Registrar</button>
+            <button onclick="goBack()">Volver</button>
+            <div id="user-login" class="hidden">
+                <h3>Login Usuario</h3>
+                <form>
+                    <input type="text" placeholder="Usuario"><br>
+                    <input type="password" placeholder="Contraseña"><br>
+                    <button type="submit">Entrar</button>
+                </form>
+            </div>
+            <div id="user-register" class="hidden">
+                <h3>Registro Usuario</h3>
+                <form>
+                    <input type="text" placeholder="Usuario"><br>
+                    <input type="password" placeholder="Contraseña"><br>
+                    <input type="email" placeholder="Correo"><br>
+                    <button type="submit">Registrar</button>
+                </form>
+            </div>
+        </div>
+        <div id="admin-section" class="hidden">
+            <h2>Admin</h2>
+            <button onclick="showForm('admin-login')">Login</button>
+            <button onclick="showForm('admin-register')">Registrar</button>
+            <button onclick="goBack()">Volver</button>
+            <div id="admin-login" class="hidden">
+                <h3>Login Admin</h3>
+                <form>
+                    <input type="text" placeholder="Admin"><br>
+                    <input type="password" placeholder="Contraseña"><br>
+                    <button type="submit">Entrar</button>
+                </form>
+            </div>
+            <div id="admin-register" class="hidden">
+                <h3>Registro Admin</h3>
+                <form>
+                    <input type="text" placeholder="Admin"><br>
+                    <input type="password" placeholder="Contraseña"><br>
+                    <input type="email" placeholder="Correo"><br>
+                    <button type="submit">Registrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
 </body>
-
 </html>
