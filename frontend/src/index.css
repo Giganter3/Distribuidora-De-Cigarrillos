@@ -1,0 +1,253 @@
+/* Import Google Font for "Bold Extended" */
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap');
+
+:root {
+  /* Blue-purple palette */
+  --primary-color: #6A0DAD; /* Dark Purple */
+  --secondary-color: #8A2BE2; /* Blue Violet */
+  --accent-color: #4B0082; /* Indigo */
+  --light-bg-color: #E6E6FA; /* Lavender */
+  --text-color: #333333;
+  --link-color: #0000FF; /* Standard Blue for links */
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Oswald', sans-serif; /* Apply the imported font */
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-size: 1.1em; /* Reduced base font size */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--primary-color);
+  font-weight: 700; /* Use bold version of Oswald */
+  font-size: 1.8em; /* Reduced title sizes */
+}
+
+/* Adjusting sizes for inputs and buttons */
+input, select, button {
+  font-size: 1.1em; /* Reduced input/select/button font size */
+  padding: 0.7em 0.9em; /* Reduced padding */
+  border-radius: 5px;
+  border: 1px solid var(--secondary-color);
+}
+
+button {
+  background-color: var(--secondary-color);
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--primary-color);
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Specific styles for the Layout component's sidebar */
+.sidebar {
+  background-color: var(--light-bg-color) !important; /* Override inline style */
+  border-right-color: var(--accent-color) !important;
+}
+
+.sidebar h2 {
+  color: var(--primary-color);
+}
+
+.sidebar a {
+  color: var(--primary-color) !important; /* Override inline style */
+  font-weight: 700;
+}
+
+.sidebar a:hover {
+  color: var(--accent-color) !important;
+}
+
+/* General layout classes */
+.page-container {
+  padding: 1.8em; /* Reduced padding */
+  max-width: 1100px; /* Slightly reduced max width */
+  margin: 0 auto; /* Center content */
+}
+
+.content-section {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.8em; /* Reduced gap */
+  margin-bottom: 1.8em;
+}
+
+.account-tree-section {
+  flex: 1;
+  padding-right: 0.8em; /* Reduced padding */
+  border-right: 1px solid var(--accent-color);
+}
+
+.new-account-section {
+  flex: 1;
+}
+
+.form-card {
+  padding: 1.3em; /* Reduced padding */
+  border: 1px solid var(--secondary-color);
+  margin-top: 1.3em; /* Reduced margin */
+  border-radius: 8px;
+  background-color: var(--light-bg-color);
+}
+
+.form-input, .form-select {
+  width: 100%;
+  margin-bottom: 0.8em; /* Reduced margin */
+  box-sizing: border-box;
+  border-color: var(--primary-color);
+}
+
+.form-button, .toggle-form-button, .add-row-button, .save-button {
+  padding: 0.9em 1.3em; /* Reduced padding */
+  font-size: 1.1em; /* Ensure button font size */
+  border-radius: 8px;
+  margin-right: 0.4em; /* Reduced margin */
+}
+
+.toggle-form-button {
+  background-color: var(--accent-color);
+}
+
+.toggle-form-button:hover {
+  background-color: var(--primary-color);
+}
+
+.add-row-button {
+  background-color: var(--secondary-color);
+}
+
+.save-button {
+  background-color: var(--primary-color);
+}
+
+.divider {
+  margin: 2.5em 0; /* Reduced margin */
+  border: none;
+  border-top: 2px solid var(--accent-color);
+}
+
+.journal-entry-section {
+  max-width: 85%; /* Slightly reduced width */
+  margin: 1.8em auto; /* Reduced margin */
+  padding: 1.3em; /* Reduced padding */
+  border: 1px solid var(--secondary-color);
+  border-radius: 8px;
+  background-color: var(--light-bg-color);
+}
+
+.form-row {
+  display: flex;
+  gap: 1.3em; /* Reduced gap */
+  margin-bottom: 1.3em; /* Reduced margin */
+}
+
+.form-row .full-width {
+  flex-grow: 1;
+}
+
+.button-group {
+  padding: 1.3em; /* Reduced padding */
+  border: 1px solid var(--secondary-color);
+  margin-bottom: 1.3em;
+  display: flex;
+  justify-content: flex-end;
+  border-radius: 8px;
+  background-color: white;
+}
+
+.table-header, .table-row {
+  display: grid;
+  grid-template-columns: 3fr 1fr 1fr;
+  gap: 1.3em; /* Reduced gap */
+  padding: 0.9em 0; /* Reduced padding */
+  align-items: center;
+  border-bottom: 1px solid var(--accent-color);
+}
+
+.table-header {
+  font-weight: bold;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* Account Node specific styles */
+.account-node-header {
+  cursor: pointer;
+  padding: 0.4em 0; /* Reduced padding */
+}
+
+.account-node strong {
+  color: var(--primary-color);
+}
+
+.account-node em {
+  color: var(--accent-color);
+}
+
+.toggle-children-button {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 50%; /* Make it round */
+  width: 1.5em; /* Small size */
+  height: 1.5em;
+  font-size: 1em;
+  line-height: 1;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 0.5em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-children-button:hover {
+  background-color: var(--primary-color);
+}
+
+.toggle-all-button {
+  margin-bottom: 1em;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.8em 1.2em;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-all-button:hover {
+  background-color: var(--accent-color);
+}
+
+/* Alternating row colors for journal entries table */
+.journal-entry-row:nth-child(odd) {
+  background-color: #f9f9f9; /* Light gray for odd rows */
+}
+
+.journal-entry-row:nth-child(even) {
+  background-color: #ffffff; /* White for even rows */
+}
