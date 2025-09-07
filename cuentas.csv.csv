@@ -1,0 +1,38 @@
+nro_cuenta;nombre;recibe_saldo;tipo
+100;Activo;0;Ac
+110;Caja y Bancos;0;Ac
+111;Caja;1;Ac
+112;Banco plazo fijo;1;Ac
+113;Banco c/c;1;Ac
+120;Creditos;0;Ac
+121;Deudores por Ventas;1;Ac
+122;Documentos a Cobrar;1;Ac
+123;Valores a Depositar;1;Ac
+130;Bienes de cambio;0;Ac
+131;Mercaderias;1;Ac
+140;Bienes de uso;0;Ac
+141;Inmuebles;1;Ac
+142;Rodados;1;Ac
+143;Instalaciones;1;Ac
+200;Pasivo;0;Pa
+210;Deudas Comerciales;0;Pa
+211;Proveedores;1;Pa
+212;Sueldos a Pagar;1;Pa
+220;Deudas Fiscales;0;Pa
+221;Impuestos a Pagar;1;Pa
+222;Moratorias;1;Pa
+230;Prestamos Bancarios;1;Pa
+300;Patrimonio;0;Pm
+310;Capital;1;Pm
+320;Resultados;1;Pm
+400;Ingresos;0;R+
+410;Ventas;0;R+
+411;Ventas;1;R+
+420;Otros ingresos;0;R+
+430;Intereses Ganados;1;R+
+500;Egresos;0;R-
+510;Costo de Mercadería Vendida;1;R-
+520;Impuestos;1;R-
+530;Sueldos;1;R-
+540;Intereses;1;R-
+550;Alquileres;1;R-

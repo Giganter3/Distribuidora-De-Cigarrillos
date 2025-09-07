@@ -5,9 +5,8 @@ export default function Asientos() {
   const [accounts, setAccounts] = useState([])
   const [date, setDate] = useState(() => new Date().toISOString().slice(0,10))
   const [description, setDescription] = useState('')
-  const [lines, setLines] = useState([{account:'', debit:0, credit:0}])
+  const [lines, setLines] = useState([{account:'', debit:0, credit:0, accountType: null}])
   const [message, setMessage] = useState('')
-  const [editingEntryId, setEditingEntryId] = useState(null);
   const [journalEntries, setJournalEntries] = useState([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -16,42 +15,24 @@ export default function Asientos() {
     API.get('/journal-entries/').then(({data}) => setJournalEntries(data));
   }, [refreshTrigger])
 
-  function updateLine(i, field, value) {
-    const copy = [...lines]
-    copy[i][field] = field === 'account' ? Number(value) : Number(value)
-    setLines(copy)
-  }
-  function addLine(i) {
-    const copy = [...lines]
-    copy.splice(i + 1, 0, {account:'', debit:0, credit:0})
-    setLines(copy)
-  }
-  function removeLine(i) { setLines(lines.filter((_,idx) => idx !== i)) }
-
-  function handleEdit(entry) {
-    setEditingEntryId(entry.id);
-    setDate(entry.date);
-    setDescription(entry.description);
-    setLines(entry.lines.map(line => ({
-      account: line.account,
-      debit: parseFloat(line.debit),
-      credit: parseFloat(line.credit),
-      accountType: accounts.find(acc => acc.id === line.account)?.type // Get account type
-    })));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  async function handleDelete(id) {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este asiento?')) {
-      try {
-        await API.delete(`/journal-entries/${id}/`);
-        setMessage('Asiento eliminado con éxito!');
-        setRefreshTrigger(prev => prev + 1); // Refresh the list
-      } catch (error) {
-        console.error('Error al eliminar asiento:', error);
-        setMessage('Error al eliminar asiento.');
-      }
+  function updateLine(index, field, value) {
+    const newLines = [...lines];
+    if (field === 'account') {
+      const selectedAcc = accounts.find(acc => acc.id === Number(value));
+      newLines[index].account = value;
+      newLines[index].accountType = selectedAcc ? selectedAcc.type : null;
+    } else {
+      newLines[index][field] = value;
     }
+    setLines(newLines);
+  }
+
+  function addLine() {
+    setLines([...lines, { account: '', debit: 0, credit: 0, date: new Date().toISOString().slice(0,10), accountType: null }]);
+  }
+
+  function removeLine(index) {
+    setLines(lines.filter((_, i) => i !== index));
   }
 
   async function submit(e) {
@@ -73,19 +54,11 @@ export default function Asientos() {
     const payload = { date, description, lines: lines.map(l => ({account: l.account || null, debit: l.debit || 0, credit: l.credit || 0})) }
 
     try {
-      if (editingEntryId) {
-        // Update existing entry
-        await API.put(`/journal-entries/${editingEntryId}/`, payload);
-        setMessage('Asiento actualizado con éxito!');
-      } else {
-        // Create new entry
-        await API.post('/journal-entries/', payload);
-        setMessage('Asiento registrado con éxito!');
-      }
+      await API.post('/journal-entries/', payload);
+      setMessage('Asiento registrado con éxito!');
       setDescription(''); 
-      setLines([{account:'', debit:0, credit:0}])
+      setLines([{account:'', debit:0, credit:0, accountType: null}])
       setDate(() => new Date().toISOString().slice(0,10))
-      setEditingEntryId(null); // Clear editing state
       setRefreshTrigger(prev => prev + 1); // Refresh the list
     } catch (err) {
       setMessage('Error: verificá que Debe = Haber y que cada línea tenga un solo lado.')
@@ -95,13 +68,37 @@ export default function Asientos() {
   return (
     <div>
       <h2>Registrar Asiento</h2>
-      <form onSubmit={submit} style={{display:'grid', gap:8, maxWidth:800}}>
-        <label>Fecha <input type="date" value={date} onChange={e=>setDate(e.target.value)} /></label>
-        <label>Descripción <input value={description} onChange={e=>setDescription(e.target.value)} /></label>
+      <form onSubmit={submit}>
+        <label style={{ marginBottom: '15px' }}>Fecha: <input type="date" value={date} onChange={e => setDate(e.target.value)} /></label>
+        <label style={{ marginBottom: '15px' }}>Descripción: <input type="text" value={description} onChange={e => setDescription(e.target.value)} /></label>
+        <div style={{ marginTop: '15px' }}>
+        {lines.map((line, index) => (
+          <div key={index} style={{ display: 'flex', gap: '10px', alignItems: 'center', width: '100%', marginBottom: '10px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>Concepto:
+              <select value={line.account} onChange={e => {
+                updateLine(index, 'account', e.target.value);
+              }}>
+                <option value="">Seleccionar Concepto...</option>
+                {accounts.map(account => (
+                  <option key={account.id} value={account.id}>{account.name}</option>
+                ))}
+              </select>
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>Debe: <input type="number" value={line.debit} onChange={e => updateLine(index, 'debit', e.target.value)} /></label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>Haber: <input type="number" value={line.credit} onChange={e => updateLine(index, 'credit', e.target.value)} /></label>
+            <button type="button" onClick={addLine}>+</button>
+            {lines.length > 1 && (
+              <button type="button" onClick={() => removeLine(index)}>-</button>
+            )}
+          </div>
+        ))}
+        </div>
+        <button type="submit">Guardar</button>
       </form>
-      <button onClick={() => setRefreshTrigger(prev => prev + 1)} style={{ marginTop: '10px' }}>Actualizar Asientos</button>
+      {message && <p>{message}</p>}
 
       <h3>Asientos Registrados</h3>
+      <button onClick={() => setRefreshTrigger(prev => prev + 1)} style={{ marginTop: '10px' }}>Actualizar Asientos</button>
       <table border="1" cellPadding="6" style={{ width: '100%', marginTop: '20px' }}>
         <thead>
           <tr>
@@ -110,7 +107,6 @@ export default function Asientos() {
             <th>Cuenta</th>
             <th>Debe</th>
             <th>Haber</th>
-            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -126,20 +122,11 @@ export default function Asientos() {
                 <td>{accounts.find(acc => acc.id === line.account)?.name}</td>
                 <td style={{ textAlign: 'right' }}>{parseFloat(line.debit ?? 0).toFixed(2)}</td>
                 <td style={{ textAlign: 'right' }}>{parseFloat(line.credit ?? 0).toFixed(2)}</td>
-                {index === 0 ? (
-                  <td rowSpan={entry.lines.length}>
-                    <button onClick={() => handleEdit(entry)}>Editar</button>
-                    <button onClick={() => handleDelete(entry.id)}>Eliminar</button>
-                  </td>
-                ) : null}
               </tr>
             ))
           ))}
         </tbody>
       </table>
-
-      
-      {/* Modification/Deletion interface will go here */}
     </div>
   )
 }

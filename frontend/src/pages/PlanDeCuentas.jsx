@@ -1,73 +1,102 @@
+// Force re-bundle again
 import React, { useState, useEffect } from 'react';
 import API from '../api';
 
 const PlanDeCuentas = () => {
   const [accounts, setAccounts] = useState([]);
   const [showNewConceptForm, setShowNewConceptForm] = useState(false);
+  const [newConceptCode, setNewConceptCode] = useState('');
   const [newConceptName, setNewConceptName] = useState('');
   const [newConceptType, setNewConceptType] = useState('');
-  const [description, setDescription] = useState('');
-  const [lines, setLines] = useState([{ account: '', debit: 0, credit: 0, date: new Date().toISOString().slice(0,10), accountType: null }]);
+  const [newConceptParent, setNewConceptParent] = useState('');
+  const [editingAccount, setEditingAccount] = useState(null);
 
   useEffect(() => {
-    API.get('/accounts').then(({data}) => setAccounts(data));
+    fetchAccounts();
   }, []);
 
-  function updateLine(index, field, value) {
-    const newLines = [...lines];
-    if (field === 'account') {
-      const selectedAcc = accounts.find(acc => acc.id === Number(value));
-      newLines[index].account = value;
-      newLines[index].accountType = selectedAcc ? selectedAcc.type : null;
-    } else {
-      newLines[index][field] = value;
-    }
-    setLines(newLines);
-  }
+  const fetchAccounts = () => {
+    API.get('/accounts').then(({ data }) => setAccounts(data));
+  };
 
-  function addLine() {
-    setLines([...lines, { account: '', debit: 0, credit: 0, date: new Date().toISOString().slice(0,10), accountType: null }]);
-  }
-
-  function removeLine(index) {
-    setLines(lines.filter((_, i) => i !== index));
-  }
-
-  async function handleNewConceptSubmit(e) {
+  const handleNewConceptSubmit = async (e) => {
     e.preventDefault();
+    const payload = {
+      code: newConceptCode,
+      name: newConceptName,
+      type: newConceptType,
+      parent: newConceptParent || null
+    };
     try {
-      await API.post('/accounts/', { name: newConceptName, type: newConceptType });
-      alert('Concepto creado con éxito!');
-      setNewConceptName('');
-      setNewConceptType('');
-      setShowNewConceptForm(false);
-      // Refresh accounts list
-      API.get('/accounts').then(({data}) => setAccounts(data));
+      if (editingAccount) {
+        await API.put(`/accounts/${editingAccount.id}/`, payload);
+        alert('Concepto actualizado con éxito!');
+      } else {
+        await API.post('/accounts/', payload);
+        alert('Concepto creado con éxito!');
+      }
+      resetForm();
+      fetchAccounts();
     } catch (error) {
-      console.error('Error al crear concepto:', error);
-      alert('Error al crear concepto. Por favor, verifica los datos.');
+      console.error('Error al procesar el concepto:', error);
+      alert('Error al procesar el concepto. Por favor, verifica los datos.');
     }
-  }
+  };
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    try {
-      await API.post('/journal-entries/', { date: lines[0].date, description, lines }); // Assuming backend expects { lines: [...] }
-      alert('Movimiento(s) registrado(s) con éxito!');
-      setLines([{ account: '', debit: 0, credit: 0, date: new Date().toISOString().slice(0,10), accountType: null }]); // Reset fields
-    } catch (error) {
-      console.error('Error al registrar movimiento(s):', error);
-      alert('Error al registrar movimiento(s). Por favor, verifica los datos.');
+  const handleEdit = (account) => {
+    setEditingAccount(account);
+    setNewConceptCode(account.code);
+    setNewConceptName(account.name);
+    setNewConceptType(account.type);
+    setNewConceptParent(account.parent || '');
+    setShowNewConceptForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = async (accountId) => {
+    if (window.confirm('¿Estás seguro de que quieres eliminar este concepto?')) {
+      try {
+        await API.delete(`/accounts/${accountId}/`);
+        alert('Concepto eliminado con éxito!');
+        fetchAccounts();
+      } catch (error) {
+        console.error('Error al eliminar el concepto:', error);
+        alert('Error al eliminar el concepto.');
+      }
     }
-  }
+  };
+
+  const resetForm = () => {
+    setNewConceptCode('');
+    setNewConceptName('');
+    setNewConceptType('');
+    setNewConceptParent('');
+    setEditingAccount(null);
+    setShowNewConceptForm(false);
+  };
+
+  const accountTypes = {
+    AS: 'Activo',
+    LI: 'Pasivo',
+    EQ: 'Patrimonio',
+    RE: 'Ingreso',
+    EX: 'Gasto'
+  };
 
   return (
     <div>
-      <h2>Registrar Movimiento en Plan de Cuentas <button type="button" onClick={() => setShowNewConceptForm(!showNewConceptForm)} style={{ fontSize: '0.8em', padding: '0.2em 0.5em' }}>{showNewConceptForm ? '-' : '+'}</button></h2>
+      <h2>
+        Plan de Cuentas
+        <button type="button" onClick={() => { setShowNewConceptForm(!showNewConceptForm); setEditingAccount(null); }} style={{ marginLeft: '10px', fontSize: '0.8em', padding: '0.2em 0.5em' }}>
+          {showNewConceptForm && !editingAccount ? 'Cancelar' : 'Crear Nuevo Concepto'}
+        </button>
+      </h2>
+
       {showNewConceptForm && (
         <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px' }}>
-          <h3>Crear Nuevo Concepto</h3>
-          <form onSubmit={handleNewConceptSubmit} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <h3>{editingAccount ? 'Editar Concepto' : 'Crear Nuevo Concepto'}</h3>
+          <form onSubmit={handleNewConceptSubmit} style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+            <label>Código: <input type="text" value={newConceptCode} onChange={e => setNewConceptCode(e.target.value)} placeholder="(Opcional)" /></label>
             <label>Nombre: <input type="text" value={newConceptName} onChange={e => setNewConceptName(e.target.value)} required /></label>
             <label>Tipo:
               <select value={newConceptType} onChange={e => setNewConceptType(e.target.value)} required>
@@ -79,38 +108,44 @@ const PlanDeCuentas = () => {
                 <option value="EX">Gasto (EX)</option>
               </select>
             </label>
-            <button type="submit">Crear</button>
-            <button type="button" onClick={() => setShowNewConceptForm(false)}>Cancelar</button>
-          </form>
-        </div>
-      )}
-      <form onSubmit={handleSubmit}>
-        <label style={{ marginBottom: '15px' }}>Fecha: <input type="date" value={lines[0].date} onChange={e => updateLine(0, 'date', e.target.value)} /></label>
-        <label style={{ marginBottom: '15px' }}>Descripción: <input type="text" value={description} onChange={e => setDescription(e.target.value)} /></label>
-        <div style={{ marginTop: '15px' }}>
-        {lines.map((line, index) => (
-          <div key={index} style={{ display: 'flex', gap: '10px', alignItems: 'center', width: '100%', marginBottom: '10px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>Concepto:
-              <select value={line.account} onChange={e => {
-                updateLine(index, 'account', e.target.value);
-              }}>
-                <option value="">Seleccionar Concepto...</option>
+            <label>Cuenta Padre:
+              <select value={newConceptParent} onChange={e => setNewConceptParent(e.target.value)}>
+                <option value="">Ninguna (Cuenta Principal)</option>
                 {accounts.map(account => (
-                  <option key={account.id} value={account.id}>{account.name}</option>
+                  <option key={account.id} value={account.id}>{account.code} - {account.name}</option>
                 ))}
               </select>
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>Debe: <input type="number" value={line.debit} onChange={e => updateLine(index, 'debit', e.target.value)} disabled={line.accountType === 'LI'} style={{ backgroundColor: !line.accountType ? '#ffffff' : (line.accountType === 'LI' ? '#ffdddd' : '#ddffdd') }} /></label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>Haber: <input type="number" value={line.credit} onChange={e => updateLine(index, 'credit', e.target.value)} disabled={line.accountType === 'AS' || line.accountType === 'EX'} style={{ backgroundColor: !line.accountType ? '#ffffff' : (line.accountType === 'AS' || line.accountType === 'EX' ? '#ffdddd' : '#ddffdd') }} /></label>
-            <button type="button" onClick={addLine}>+</button>
-            {lines.length > 1 && (
-              <button type="button" onClick={() => removeLine(index)}>-</button>
-            )}
-          </div>
-        ))}
+            <button type="submit">{editingAccount ? 'Actualizar' : 'Crear'}</button>
+            {editingAccount && <button type="button" onClick={resetForm}>Cancelar Edición</button>}
+          </form>
         </div>
-        <button type="submit">Guardar</button>
-      </form>
+      )}
+
+      <h3>Listado de Cuentas</h3>
+      <table border="1" cellPadding="6" style={{ width: '100%', marginTop: '20px' }}>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {accounts.map(account => (
+            <tr key={account.id}>
+              <td>{account.code}</td>
+              <td>{account.name}</td>
+              <td>{accountTypes[account.type] || account.type}</td>
+              <td>
+                <button onClick={() => handleEdit(account)}>Editar</button>
+                <button onClick={() => handleDelete(account.id)} style={{ marginLeft: '5px' }}>Eliminar</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

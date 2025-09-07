@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 
-export default function Login() {
+export function Login() {
   const [username, setUsername] = useState('admin')
   const [password, setPassword] = useState('admin')
   const [error, setError] = useState('')
@@ -11,7 +11,7 @@ export default function Login() {
     try {
       const { data } = await axios.post('http://localhost:8000/api/token/', { username, password })
       localStorage.setItem('token', data.access)
-      window.location.href = '/'
+      window.location.href = '/app'
     } catch (err) {
       setError('Credenciales inválidas')
     }

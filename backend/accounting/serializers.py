@@ -2,20 +2,36 @@ from rest_framework import serializers
 from .models import Account, JournalEntry, JournalEntryLine
 from django.contrib.auth.models import User
 
-import uuid # Add this import
-
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ['id', 'code', 'name', 'type', 'parent', 'is_active']
-        extra_kwargs = {
-            'code': {'required': False} # Make code not required for creation
-        }
 
     def create(self, validated_data):
-        if 'code' not in validated_data or not validated_data['code']:
-            # Generate a unique code if not provided
-            validated_data['code'] = uuid.uuid4().hex[:20] # Use first 20 chars of UUID
+        # If code is provided, use it
+        if 'code' in validated_data and validated_data['code']:
+            return super().create(validated_data)
+
+        parent = validated_data.get('parent')
+
+        if parent:
+            # Find the last child of the parent to determine the next code
+            last_child = Account.objects.filter(parent=parent).order_by('code').last()
+            if last_child and last_child.code:
+                parts = last_child.code.split('.')
+                parts[-1] = str(int(parts[-1]) + 1)
+                new_code = '.'.join(parts)
+            else:
+                new_code = f'{parent.code}.1'
+        else:
+            # It's a root account, find the last root account to determine the next code
+            last_root_account = Account.objects.filter(parent__isnull=True).order_by('code').last()
+            if last_root_account and last_root_account.code:
+                new_code = str(int(last_root_account.code) + 1)
+            else:
+                new_code = '1'
+        
+        validated_data['code'] = new_code
         return super().create(validated_data)
 
 class AccountTreeSerializer(serializers.ModelSerializer):
